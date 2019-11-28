@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 import './product.dart';
 
@@ -62,12 +65,28 @@ class Products with ChangeNotifier {
   //add product in the list
   void addProduct(Product product) {
 
-    final newProduct = Product(
+    const url = 'https://shoppa-1ac80.firebaseio.com/products.json';
+    http.post(url, body: json.encode({
+      'title': product.title,
+      'description': product.description,
+      'imageUrl': product.imageUrl,
+      'price': product.price,
+      'isFavorite': product.isFavorite,
+    }),
+
+
+    )
+
+    .then((response) {
+
+      print(json.decode(response.body));
+
+       final newProduct = Product(
       title: product.title,
       price: product.price,
       description: product.description,
       imageUrl: product.imageUrl,
-      id: DateTime.now().toString(),
+      id: json.decode(response.body) ['name'],
     );
 
     // _items.add(newProduct);
@@ -75,12 +94,20 @@ class Products with ChangeNotifier {
     _items.insert(0, newProduct);
     // items add(value)
     notifyListeners();
+  
+
+    });
   }
+
+   
 
   Product findById(String productId) {
     return items.firstWhere((prod) => prod.id == productId);
   }
 
+
+
+//update Product in the list......
   void updateProduct(String id, Product newProduct) {
 
     final prodIndex = _items.indexWhere((prod) => prod.id == id);
@@ -91,8 +118,12 @@ class Products with ChangeNotifier {
     }else {
       print('...');
     }
+
+
   }
 
+
+//Delete Public.....
   void deleteProduct(String id) {
 
     _items.removeWhere((prod) => prod.id == id);
