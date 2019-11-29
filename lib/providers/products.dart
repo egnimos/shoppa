@@ -62,12 +62,48 @@ class Products with ChangeNotifier {
   }
 
 
-  //add product in the list
-  Future<void> addProduct(Product product) {
+  Future<void> fetchAndSetProducts() async{
 
     const url = 'https://shoppa-1ac80.firebaseio.com/products.json';
 
-    return http.post(url, body: json.encode({ //post returns the future 
+    try {
+
+      final response = await http.get(url);
+      final extractedData = json.decode(response.body) as Map<String, dynamic>;
+      final List<Product> loadedProducts = [];
+
+      extractedData.forEach((prodId, prodData) {
+        loadedProducts.add(Product(
+          id: prodId,
+          title: prodData['title'],
+          description: prodData['description'],
+          price: prodData['price'],
+          isFavorite: prodData['isFavorite'],
+          imageUrl: prodData['imageUrl'],
+        ));
+      });
+
+      _items = loadedProducts;
+      notifyListeners();
+      
+    } catch (error) {
+      // print(error);
+      throw error;
+
+    }
+
+  }
+
+
+  //add product in the list
+  Future<void> addProduct(Product product) async {
+
+    const url = 'https://shoppa-1ac80.firebaseio.com/products.json';
+
+    
+    try{
+
+    final response = await http.post(url, body: json.encode({ //post returns the future 
 
       'title': product.title,
       'description': product.description,
@@ -76,10 +112,9 @@ class Products with ChangeNotifier {
       'isFavorite': product.isFavorite,
     }),
 
+  );
 
-    )
-
-    .then((response) { //then method also returns the future
+   // .then((response) { //then method also returns the future
 
       print(json.decode(response.body));
 
@@ -98,15 +133,24 @@ class Products with ChangeNotifier {
     notifyListeners();
   
 
-    }).catchError((error) {
+    }catch(error) {
+
       print(error);
       throw error;
-    });
+
+    }
+
+   
+
+    // }).catchError((error) {
+
+    // });
 
   }
 
    
 
+//Find the product By Id.......
   Product findById(String productId) {
     return items.firstWhere((prod) => prod.id == productId);
   }

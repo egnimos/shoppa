@@ -7,6 +7,7 @@ import '../widgets/products_grid.dart';
 import './cart_screen.dart';
 import '../providers/cart.dart';
 import '../widgets/app_drawers.dart';
+import '../providers/products.dart';
 
 
 enum FilterOptions {
@@ -22,6 +23,37 @@ class ProductsOverviewScreen  extends StatefulWidget {
 class _ProductsOverviewScreenState extends State<ProductsOverviewScreen > {
 
   var _showFavoritesOnly = false;
+  var _isInit = true;
+  var _isLoaded = false;
+
+  // @override
+  // void initState() {
+
+  //   // Provider.of<Products>(context).fetchAndSetProducts();
+  //   // Future.delayed(Duration.zero).then((_) {
+  //   //   Provider.of<Products>(context).fetchAndSetProducts();
+  //   // });
+  //   super.initState();
+  // }
+
+  @override
+  void didChangeDependencies() {
+    if (_isInit) {
+      setState(() {
+        _isLoaded = true;
+      });
+      Provider.of<Products>(context).fetchAndSetProducts().then((_) {
+      setState(() {
+        _isLoaded =false;
+      });
+      });
+
+    }
+
+    _isInit = false;
+    
+    super.didChangeDependencies();
+  }
 
 
   @override
@@ -68,10 +100,13 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen > {
 
       drawer: AppDrawer(),
 
-      body: ProductsGrid(_showFavoritesOnly)
+      body: _isLoaded ? Center(
+        child: CircularProgressIndicator(),
+        ) : ProductsGrid(_showFavoritesOnly)
 
     );
 
   }
+
 
 }

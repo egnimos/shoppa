@@ -107,7 +107,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
 
 //save the form values
-  void _saveForm() {
+ Future<void> _saveForm() async {
 
     setState(() {
       _isLoading = true;
@@ -131,9 +131,13 @@ class _EditProductScreenState extends State<EditProductScreen> {
       
     }else {
 
-        Provider.of<Products>(context, listen: false).addProduct(_editedProduct).catchError((error) {
+      try {
+   
+        await Provider.of<Products>(context, listen: false).addProduct(_editedProduct);
+        
+        }catch(error) {
 
-          return showDialog(
+          showDialog(
             context: context,
             builder: (ctx) => AlertDialog(
               title: Text('Error is being occured'),
@@ -149,13 +153,23 @@ class _EditProductScreenState extends State<EditProductScreen> {
             )
           );
 
-        }).then((_) {
-          setState(() {
+        }finally {
+
+            setState(() {
             _isLoading = false;
           });
           Navigator.of(context).pop();
 
-        });
+        }
+        
+        // .catchError((error) {
+
+      
+
+        // }).then((_) {
+
+
+        // });
 
     }
 
