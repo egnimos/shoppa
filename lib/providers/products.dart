@@ -63,10 +63,12 @@ class Products with ChangeNotifier {
 
 
   //add product in the list
-  void addProduct(Product product) {
+  Future<void> addProduct(Product product) {
 
     const url = 'https://shoppa-1ac80.firebaseio.com/products.json';
-    http.post(url, body: json.encode({
+
+    return http.post(url, body: json.encode({ //post returns the future 
+
       'title': product.title,
       'description': product.description,
       'imageUrl': product.imageUrl,
@@ -77,7 +79,7 @@ class Products with ChangeNotifier {
 
     )
 
-    .then((response) {
+    .then((response) { //then method also returns the future
 
       print(json.decode(response.body));
 
@@ -96,7 +98,11 @@ class Products with ChangeNotifier {
     notifyListeners();
   
 
+    }).catchError((error) {
+      print(error);
+      throw error;
     });
+
   }
 
    
