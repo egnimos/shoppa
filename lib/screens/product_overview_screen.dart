@@ -36,13 +36,18 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen > {
   //   super.initState();
   // }
 
+  Future<void> _fetchData() async{
+
+    await Provider.of<Products>(context).fetchAndSetProducts();
+  }
+
   @override
   void didChangeDependencies() {
     if (_isInit) {
       setState(() {
         _isLoaded = true;
       });
-      Provider.of<Products>(context).fetchAndSetProducts().then((_) {
+      _fetchData().then((_) {
       setState(() {
         _isLoaded =false;
       });
@@ -102,7 +107,11 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen > {
 
       body: _isLoaded ? Center(
         child: CircularProgressIndicator(),
-        ) : ProductsGrid(_showFavoritesOnly)
+        ) 
+        : RefreshIndicator(
+          onRefresh: () => _fetchData(),
+        child: ProductsGrid(_showFavoritesOnly),
+        )
 
     );
 

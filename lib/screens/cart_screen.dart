@@ -15,6 +15,7 @@ class CartScreen extends StatelessWidget {
   Widget build(BuildContext context) {
 
     final cart = Provider.of<Cart>(context);
+  
 
     return Scaffold(
       appBar: AppBar(
@@ -61,17 +62,7 @@ class CartScreen extends StatelessWidget {
                   
                     Spacer(),
 
-                    FlatButton(
-                      child: Text('Order Now'),
-                      onPressed: () {
-                        Provider.of<Order>(context, listen: false).addOrder(
-                          cart.items.values.toList(), 
-                          cart.totalAmount,
-                          );
-
-                          cart.clear();
-                      },
-                    )
+                    OrderNowButton(cart: cart )
                 ],),
             ),
           ),
@@ -97,4 +88,65 @@ class CartScreen extends StatelessWidget {
     );
   }
   
+}
+
+
+//new widget of ordering the cart items
+
+class OrderNowButton extends StatefulWidget {
+  const OrderNowButton({
+    Key key,
+    @required this.cart,
+  
+  }) : super(key: key);
+
+  final Cart cart;
+
+
+  @override
+  _OrderNowButtonState createState() => _OrderNowButtonState();
+}
+
+class _OrderNowButtonState extends State<OrderNowButton> {
+
+
+  var _isloading = false;
+
+  @override
+  Widget build(BuildContext context) {
+
+    return FlatButton(
+
+      child: _isloading ? CircularProgressIndicator() :Text('Order Now'),
+      onPressed: widget.cart.totalAmount <= 0 ? null : ()  async{
+        try {
+        setState(() {
+          _isloading = true;
+        });
+        await Provider.of<Order>(context, listen: false).addOrder(
+          widget.cart.items.values.toList(), 
+          widget.cart.totalAmount,
+          );
+
+          widget.cart.clear();
+
+          setState(() {
+            _isloading = false;
+          });
+        }catch(error) {
+
+          Scaffold.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to order'),
+            ),
+          );
+          
+        }
+
+        
+
+        
+      },
+    );
+  }
 }

@@ -123,11 +123,29 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
     if (_editedProduct.id != null) {
 
-       Provider.of<Products>(context, listen: false).updateProduct(_editedProduct.id, _editedProduct);
-       setState(() {
-         _isLoading = false;
-       });
-       Navigator.of(context).pop();
+      try{
+
+       await Provider.of<Products>(context, listen: false).updateProduct(_editedProduct.id, _editedProduct);
+
+      }catch(error) {
+
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: Text('Error in updating the inputs'),
+            content: Text('Please the check the internet connection or contact egnimos'),
+            actions: <Widget>[
+              FlatButton(
+                child: Text('Okay'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              )
+            ],
+          )
+        );
+
+      }
       
     }else {
 
@@ -153,25 +171,24 @@ class _EditProductScreenState extends State<EditProductScreen> {
             )
           );
 
-        }finally {
-
-            setState(() {
-            _isLoading = false;
-          });
-          Navigator.of(context).pop();
-
         }
+        // finally {
+
+        //     setState(() {
+        //     _isLoading = false;
+        //   });
+        //   Navigator.of(context).pop();
+
+        // }
         
-        // .catchError((error) {
-
-      
-
-        // }).then((_) {
-
-
-        // });
-
+       
     }
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    Navigator.of(context).pop();
 
   
     // Navigator.of(context).pop();
